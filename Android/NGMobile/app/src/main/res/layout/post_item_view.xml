@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="8dp"
+    android:layout_marginTop="4dp"
+    android:layout_marginEnd="8dp"
+    android:layout_marginBottom="4dp"
+    app:cardCornerRadius="5dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="8dp">
+
+        <ImageView
+            android:id="@+id/post_image_view"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_marginStart="-8dp"
+            android:layout_marginTop="-8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="-8dp"
+            android:contentDescription="@string/ng_post"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ng_logo_transparent" />
+
+        <TextView
+            android:id="@+id/post_title_text"
+            style="@style/post_item_title"/>
+
+        <TextView
+            android:id="@+id/post_date_text"
+            style="@style/post_item_date" />
+
+
+
+
+    </RelativeLayout>
+
+</androidx.cardview.widget.CardView>

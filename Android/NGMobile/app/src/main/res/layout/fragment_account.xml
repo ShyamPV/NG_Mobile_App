@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/member_name"
+        style="@style/title_text"
+        android:text="@string/app_name" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:paddingBottom="24dp">
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="4dp"
+                android:layout_marginBottom="8dp"
+                android:elevation="4dp"
+                app:cardCornerRadius="5dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:paddingBottom="18dp">
+
+                    <TextView
+                        style="@style/member_card_title"
+                        android:text="@string/member_address_title" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/inputTextFieldLayout"
+                        android:hint="@string/post_address">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/member_address_post_address"
+                            style="@style/inputFieldsTextStyle"
+                            android:inputType="number" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/inputTextFieldLayout"
+                        android:hint="@string/city">
+
+                        <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+                            android:id="@+id/member_address_city"
+                            style="@style/inputFieldsTextStyle"
+                            android:inputType="textAutoComplete" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/inputTextFieldLayout"
+                        android:hint="@string/country">
+
+                        <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+                            android:id="@+id/member_address_country"
+                            style="@style/inputFieldsTextStyle"
+                            android:inputType="textAutoComplete" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/inputTextFieldLayout"
+                        android:hint="@string/postal_code">
+
+                        <EditText
+                            android:id="@+id/member_address_post_code"
+                            style="@style/inputFieldsTextStyle"
+                            android:inputType="number" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="4dp"
+                android:layout_marginBottom="8dp"
+                android:elevation="4dp"
+                app:cardCornerRadius="5dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:paddingBottom="18dp">
+
+                    <TextView
+                        style="@style/member_card_title"
+                        android:text="@string/member_membership_title" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/inputTextFieldLayout"
+                        android:hint="@string/membership_number">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/member_membership_no"
+                            style="@style/inputFieldsTextStyle"
+                            android:enabled="false" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/inputTextFieldLayout"
+                        android:hint="@string/membership_type">
+
+                        <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+                            android:id="@+id/member_membership_type"
+                            style="@style/inputFieldsTextStyle"
+                            android:enabled="false" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <androidx.appcompat.widget.AppCompatButton
+                        android:id="@+id/member_wallet"
+                        style="@style/button_style"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:background="@drawable/primary_button_red"
+                        android:text="@string/member_wallet"
+                        android:textColor="#ffffff"
+                        android:textSize="18sp" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="4dp"
+                android:layout_marginBottom="8dp"
+                android:elevation="4dp"
+                app:cardCornerRadius="5dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:paddingBottom="18dp">
+
+                    <TextView
+                        style="@style/member_card_title"
+                        android:text="@string/member_credentials_title" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/inputTextFieldLayout"
+                        android:hint="@string/email">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/member_email"
+                            style="@style/inputFieldsTextStyle"
+                            android:enabled="false" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/inputTextFieldLayout"
+                        android:hint="@string/password"
+                        app:endIconMode="password_toggle"
+                        app:endIconTint="@color/password_red_dark">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/member_password"
+                            style="@style/inputFieldsTextStyle"
+                            android:inputType="textPassword" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/inputTextFieldLayout"
+                        android:hint="@string/confirm_password"
+                        app:endIconMode="password_toggle"
+                        app:endIconTint="@color/password_red_dark">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/member_confirm_password"
+                            style="@style/inputFieldsTextStyle"
+                            android:inputType="textPassword" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/member_update_profile"
+                android:background="@drawable/primary_button_blue"
+                style="@style/button_style"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:text="@string/update_profile"
+                android:textColor="#ffffff"
+                android:textSize="18sp" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>

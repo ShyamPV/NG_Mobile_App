@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "283249386314",
+    "project_id": "ng-mobile-system",
+    "storage_bucket": "ng-mobile-system.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:283249386314:android:42a415deaf15d1c7afd7b3",
+        "android_client_info": {
+          "package_name": "com.shyam.ngmobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "283249386314-2qe4d3mcb1ke5b4p7eoc8qt2mvg5v897.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC7yCF1tyLt20_dMLZq7SCzmtB-Jr2mTHI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "283249386314-2qe4d3mcb1ke5b4p7eoc8qt2mvg5v897.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

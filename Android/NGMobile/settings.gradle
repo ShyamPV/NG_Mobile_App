@@ -1,0 +1,2 @@
+rootProject.name = "NG Mobile"
+include ':app'

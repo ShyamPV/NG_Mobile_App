@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="ng_blue">#2D74A9</color>
+    <color name="ng_blue_dark">#00497a</color>
+    <color name="ng_blue_light">#65a2db</color>
+    <color name="ng_blue_30">#B1CCE0</color>
+    <color name="ng_blue_10">#EAF1F6</color>
+    <color name="ng_error_red">#A92D2D</color>
+    <color name="ng_error_red_light">#e05f56</color>
+    <color name="mpesa_green">#BEE5B0</color>
+
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <color name="password_red_dark">#ff4072</color>
+
+</resources>
