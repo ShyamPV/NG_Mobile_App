@@ -108,7 +108,7 @@
 
                     <com.google.android.material.textfield.TextInputLayout
                         style="@style/inputTextFieldLayout"
-                        android:hint="@string/membership_expiry">
+                        android:hint="@string/gym_expiry_date">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/payment_gym_expiry"
@@ -116,61 +116,66 @@
                             android:enabled="false" />
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <RadioGroup
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
+                    <Spinner
+                        android:id="@+id/gym_amount_spinner"
+                        style="@style/gym_spinner"/>
+
+<!--                    <RadioGroup-->
+<!--                        android:id="@+id/pay_gym_sub_group"-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content">-->
 
 
-                        <RadioButton
-                            android:id="@+id/pay_gym_annual_single"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/gym_annual_single"
-                            android:textSize="18sp" />
+<!--                        <RadioButton-->
+<!--                            android:id="@+id/pay_gym_annual_single"-->
+<!--                            android:layout_width="match_parent"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:text="@string/gym_annual_single"-->
+<!--                            android:textSize="18sp" />-->
 
-                        <RadioButton
-                            android:id="@+id/pay_gym_annual_couple"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/gym_annual_couple"
-                            android:textSize="18sp" />
+<!--                        <RadioButton-->
+<!--                            android:id="@+id/pay_gym_annual_couple"-->
+<!--                            android:layout_width="match_parent"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:text="@string/gym_annual_couple"-->
+<!--                            android:textSize="18sp" />-->
 
-                        <RadioButton
-                            android:id="@+id/pay_gym_semi_annual_single"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/gym_semi_annual_single"
-                            android:textSize="18sp" />
+<!--                        <RadioButton-->
+<!--                            android:id="@+id/pay_gym_semi_annual_single"-->
+<!--                            android:layout_width="match_parent"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:text="@string/gym_semi_annual_single"-->
+<!--                            android:textSize="18sp" />-->
 
-                        <RadioButton
-                            android:id="@+id/pay_gym_semi_annual_couple"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/gym_semi_annual_couple"
-                            android:textSize="18sp" />
+<!--                        <RadioButton-->
+<!--                            android:id="@+id/pay_gym_semi_annual_couple"-->
+<!--                            android:layout_width="match_parent"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:text="@string/gym_semi_annual_couple"-->
+<!--                            android:textSize="18sp" />-->
 
-                        <RadioButton
-                            android:id="@+id/pay_gym_quarterly"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/gym_quarterly"
-                            android:textSize="18sp" />
+<!--                        <RadioButton-->
+<!--                            android:id="@+id/pay_gym_quarterly"-->
+<!--                            android:layout_width="match_parent"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:text="@string/gym_quarterly"-->
+<!--                            android:textSize="18sp" />-->
 
-                        <RadioButton
-                            android:id="@+id/pay_gym_monthly"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/gym_monthly"
-                            android:textSize="18sp" />
+<!--                        <RadioButton-->
+<!--                            android:id="@+id/pay_gym_monthly"-->
+<!--                            android:layout_width="match_parent"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:text="@string/gym_monthly"-->
+<!--                            android:textSize="18sp" />-->
 
-                        <RadioButton
-                            android:id="@+id/pay_gym_daily"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/gym_daily"
-                            android:textSize="18sp" />
+<!--                        <RadioButton-->
+<!--                            android:id="@+id/pay_gym_daily"-->
+<!--                            android:layout_width="match_parent"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:text="@string/gym_daily"-->
+<!--                            android:textSize="18sp" />-->
 
-                    </RadioGroup>
+<!--                    </RadioGroup>-->
 
                 </LinearLayout>
 

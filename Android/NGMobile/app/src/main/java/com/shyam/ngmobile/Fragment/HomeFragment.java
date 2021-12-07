@@ -17,7 +17,7 @@ import com.shyam.ngmobile.Adapter.PostAdapter;
 import com.shyam.ngmobile.Model.Post;
 import com.shyam.ngmobile.PostDetailActivity;
 import com.shyam.ngmobile.R;
-import com.shyam.ngmobile.Utils;
+import com.shyam.ngmobile.Services.Utils;
 
 import java.util.ArrayList;
 import java.util.Calendar;

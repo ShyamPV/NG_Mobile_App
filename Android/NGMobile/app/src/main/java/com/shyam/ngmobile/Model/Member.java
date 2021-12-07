@@ -1,10 +1,8 @@
 package com.shyam.ngmobile.Model;
 
 import com.shyam.ngmobile.Enums.MemberStatus;
-import com.shyam.ngmobile.Enums.MembershipType;
 
 import java.util.Date;
-import java.util.EnumMap;
 
 public class Member {
     private String userID;
@@ -16,7 +14,7 @@ public class Member {
     private String zipCode;
     private String city;
     private String country;
-    private MembershipType memberType;
+    private String memberType;
     private MemberStatus accountStatus;
     private Date memberExpiryDate;
     private Date gymExpiryDate;
@@ -27,7 +25,7 @@ public class Member {
 
     public Member(String userID, String membershipNo, String fullName, String phoneNumber,
                   String email, String postAddress, String zipCode, String city, String country,
-                  MembershipType memberType, MemberStatus accountStatus, Date memberExpiryDate, Date gymExpiryDate, boolean firstTimeLogin) {
+                  String memberType, MemberStatus accountStatus, Date memberExpiryDate, Date gymExpiryDate, boolean firstTimeLogin) {
         this.userID = userID;
         this.membershipNo = membershipNo;
         this.fullName = fullName;
@@ -45,7 +43,7 @@ public class Member {
     }
 
     public Member(String userID, String membershipNo, String fullName, String phoneNumber,
-                  String email, MembershipType memberType, MemberStatus accountStatus,
+                  String email, String memberType, MemberStatus accountStatus,
                   Date memberExpiryDate, Date gymExpiryDate, boolean firstTimeLogin) {
         this.userID = userID;
         this.membershipNo = membershipNo;
@@ -96,7 +94,7 @@ public class Member {
         return country;
     }
 
-    public MembershipType getMemberType() {
+    public String getMemberType() {
         return memberType;
     }
 
@@ -147,8 +145,6 @@ public class Member {
     public void setFirstTimeLogin(boolean firstTimeLogin) {
         this.firstTimeLogin = firstTimeLogin;
     }
-
-
 
 
 }

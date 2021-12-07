@@ -7,7 +7,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.shyam.ngmobile.Enums.MemberStatus;
-import com.shyam.ngmobile.Enums.MembershipType;
 import com.shyam.ngmobile.Fragment.LoginFragment;
 import com.shyam.ngmobile.Model.Member;
 

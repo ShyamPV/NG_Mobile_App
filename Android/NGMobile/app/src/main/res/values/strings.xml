@@ -18,6 +18,7 @@
     <string name="membership_number">Membership Number</string>
     <string name="membership_type">Membership Type</string>
     <string name="membership_expiry">Membership Expiry Date</string>
+    <string name="gym_expiry_date">Gym Expiry Date</string>
     <string name="member_credentials_title">Credentials</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
@@ -32,13 +33,7 @@
     <string name="amount_due">Amount Due</string>
     <string name="pay_mpesa">Pay Via M-Pesa</string>
     <string name="gym">GYM</string>
-    <string name="gym_annual_single">Annual: Ksh 28,000/= (Single)</string>
-    <string name="gym_annual_couple">Annual: Ksh 40,000/= (Couple)</string>
-    <string name="gym_semi_annual_single">Semi Annual: Ksh 16,000/= (Single)</string>
-    <string name="gym_semi_annual_couple">Semi Annual: Ksh 24,000/= (Couple)</string>
-    <string name="gym_quarterly">Quarterly: Ksh 9,000/= (Single and Over 18 only)</string>
-    <string name="gym_monthly">Monthly: Ksh 3,500/= (Single Only)</string>
-    <string name="gym_daily">Daily: Ksh 400/=</string>
     <string name="dummy_text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed tincidunt massa ante, ut vulputate dui volutpat non. Sed volutpat ultrices vestibulum. Praesent nunc elit, rhoncus sed justo eu, dignissim aliquam mauris. Integer sit amet sapien sit amet nunc euismod tincidunt sed non nibh. Sed finibus neque eget est elementum pulvinar. Pellentesque risus elit, congue a risus nec, aliquet vehicula nisl. Sed id auctor dolor. Fusce vitae velit non justo ullamcorper vulputate sit amet ut lectus. Quisque lacinia turpis ante, vitae ornare dui congue eget.</string>
-
+    <string name="phone_number">Phone Number</string>
+    <string name="zero_amount">Ksh 0/=</string>
 </resources>

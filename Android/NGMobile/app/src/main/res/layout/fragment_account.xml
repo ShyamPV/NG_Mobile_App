@@ -82,6 +82,17 @@
                             style="@style/inputFieldsTextStyle"
                             android:inputType="number" />
                     </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/inputTextFieldLayout"
+                        android:hint="@string/phone_number">
+
+                        <EditText
+                            android:id="@+id/member_address_phone"
+                            style="@style/inputFieldsTextStyle"
+                            android:inputType="number" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
@@ -195,10 +206,10 @@
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/member_update_profile"
-                android:background="@drawable/primary_button_blue"
                 style="@style/button_style"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
+                android:background="@drawable/primary_button_blue"
                 android:text="@string/update_profile"
                 android:textColor="#ffffff"
                 android:textSize="18sp" />
