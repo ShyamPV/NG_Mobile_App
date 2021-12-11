@@ -134,6 +134,10 @@ public class Member {
         this.country = country;
     }
 
+    public void setAccountStatus(MemberStatus accountStatus) {
+        this.accountStatus = accountStatus;
+    }
+
     public void setMemberExpiryDate(Date memberExpiryDate) {
         this.memberExpiryDate = memberExpiryDate;
     }

@@ -33,7 +33,12 @@
     <string name="amount_due">Amount Due</string>
     <string name="pay_mpesa">Pay Via M-Pesa</string>
     <string name="gym">GYM</string>
-    <string name="dummy_text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed tincidunt massa ante, ut vulputate dui volutpat non. Sed volutpat ultrices vestibulum. Praesent nunc elit, rhoncus sed justo eu, dignissim aliquam mauris. Integer sit amet sapien sit amet nunc euismod tincidunt sed non nibh. Sed finibus neque eget est elementum pulvinar. Pellentesque risus elit, congue a risus nec, aliquet vehicula nisl. Sed id auctor dolor. Fusce vitae velit non justo ullamcorper vulputate sit amet ut lectus. Quisque lacinia turpis ante, vitae ornare dui congue eget.</string>
     <string name="phone_number">Phone Number</string>
     <string name="zero_amount">Ksh 0/=</string>
+    <string name="get_document">Get Document</string>
+    <string name="payment_option">Payment For:</string>
+    <string name="payment_option_subs">Subs</string>
+    <string name="payment_option_gym">GYM</string>
+    <string name="payment_option_card">CARD</string>
+    <string name="card_recharge_text">Card Recharge</string>
 </resources>

@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:src="@drawable/new_year" />
+        android:visibility="gone" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -26,40 +26,36 @@
 
             <TextView
                 android:id="@+id/post_detail_title"
-                style="@style/title_text"
-                android:text="New Year Celebration" />
+                style="@style/title_text" />
 
             <TextView
                 android:id="@+id/post_detail_date"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="24dp"
+                style="@style/post_detail_timing"
                 android:paddingTop="8dp"
-                android:paddingBottom="4dp"
-                android:text="Date: 31/12/2021"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                android:paddingBottom="4dp" />
 
             <TextView
                 android:id="@+id/post_detail_time"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="24dp"
+                style="@style/post_detail_timing"
                 android:paddingTop="4dp"
-                android:paddingBottom="8dp"
-                android:text="From: 9:00 PM to 12:00 AM"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                android:paddingBottom="8dp" />
 
             <TextView
                 android:id="@+id/post_details_description"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/dummy_text"
-                android:textSize="16sp"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"/>
+                style="@style/post_detail_description" />
 
         </LinearLayout>
     </ScrollView>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_post_detail_document"
+        style="@style/button_style"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/primary_button_blue"
+        android:text="@string/get_document"
+        android:textColor="#ffffff"
+        android:textSize="18sp"
+        android:visibility="gone" />
+
 </LinearLayout>

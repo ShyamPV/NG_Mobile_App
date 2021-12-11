@@ -1,16 +1,18 @@
 package com.shyam.ngmobile;
 
-import android.content.Intent;
+import android.content.DialogInterface;
+import android.graphics.Typeface;
 import android.os.Bundle;
-import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -27,6 +29,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 
+import cn.pedant.SweetAlert.SweetAlertDialog;
+
 public class PaymentActivity extends AppCompatActivity {
 
     private static final String FULL_MEMBER = "Full Member";
@@ -36,22 +40,32 @@ public class PaymentActivity extends AppCompatActivity {
     private static final String UPCOUNTRY = "Upcountry Member";
     private static final String GYM_PAYMENT = "Gym Subscription Renewal";
     private static final String SUBS_PAYMENT = "Membership Subs Payment";
+    private static final String CARD_PAYMENT = "Prepaid Card Recharge";
     private static final String PAYBILL = "542542";
     private static final String SUBS_ACC = "000550";
     private static final String PREPAID_ACC = "000551";
+    private static final double REINSTATEMENT = 5000.0;
+    private Date reinstatementDate;
+    private String paymentOption;
 
 
-    private EditText memberTypeText, expiryDateText, gymExpiryDate, amountDue;
+    private EditText expiryDateText;
+    private EditText gymExpiryDate;
+    private EditText amountDue;
+    private EditText dialogPhoneNumberText;
+    private EditText dialogAmountText;
     private Spinner gymAmountSpinner;
-    private Button statement, pay;
+    private Button statement, pay, btn_pay_subs, btn_pay_gym, btn_pay_card;
     private SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH);
     private Member member;
     private Subscription subscription;
+    private SweetAlertDialog pDialog;
 
     private CollectionReference subsRef;
     private CollectionReference memberRef;
     private CollectionReference transactionRef;
     private LinkedHashMap<String, Double> gymAmountsHash;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,17 +75,29 @@ public class PaymentActivity extends AppCompatActivity {
         setup();
     }
 
+    // Setup Methods---------------------------------------------------------------------------------
     private void setup() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         subsRef = db.collection("subscription");
         memberRef = db.collection("member");
         transactionRef = db.collection("transaction");
 
+        pDialog = new SweetAlertDialog(this, SweetAlertDialog.PROGRESS_TYPE);
+        pDialog.setTitle("Loading...");
+        pDialog.getProgressHelper().setBarColor(ContextCompat.getColor(this, R.color.ng_blue));
+        pDialog.setCancelable(false);
+        pDialog.show();
+        reinstatementDate = getReinstatementDate();
+
         member = Utils.getCurrentMember();
+
+        if (isDefaulted())
+            Utils.displayMessage(this, "", "Your account has defaulted" +
+                    "\nKindly pay your subscriptions.");
 
         String subMemberType = getSubMemberType();
 
-        memberTypeText = findViewById(R.id.payment_member_type);
+        EditText memberTypeText = findViewById(R.id.payment_member_type);
         expiryDateText = findViewById(R.id.payment_member_expiry_date);
         gymExpiryDate = findViewById(R.id.payment_gym_expiry);
         amountDue = findViewById(R.id.payment_member_amount);
@@ -87,114 +113,20 @@ public class PaymentActivity extends AppCompatActivity {
         setGymAmount();
 
         pay.setOnClickListener(view -> {
-            if (subscription == null && gymAmountSpinner.getSelectedItemPosition() == 0) {
-                Utils.displayMessage(this, "Error!",
-                        "Please select the gym option");
-            } else if (gymAmountSpinner.getSelectedItemPosition() == 0) {
-                //
-                double amount = subscription.getSubsTotal();
-                processPayment(amount, SUBS_PAYMENT);
-            } else {
-                double amount = gymAmountsHash.get(gymAmountSpinner.getSelectedItem().toString());
-                processPayment(amount, GYM_PAYMENT);
-            }
+            showPaymentDialog();
         });
 
-        statement.setOnClickListener(view -> Utils.generateMemberStatement(member, subscription));
+        statement.setOnClickListener(view -> {
+            Utils.generateMemberStatement(member, subscription);
+        });
 
         if (!subMemberType.equals("")) {
             getSubscription(subMemberType);
         }
+
+        pDialog.dismiss();
     }
 
-    private void processPayment(double amount, String paymentType) {
-        // TODO show pDialog
-        // TODO "test demo" Remove disable button
-        pay.setEnabled(false);
-        String mpesaAccountRef;
-        if (paymentType.equals(SUBS_PAYMENT)) {
-            mpesaAccountRef = SUBS_ACC + "#" + member.getMembershipNo();
-        } else {
-            mpesaAccountRef = PREPAID_ACC + "#" + member.getMembershipNo();
-        }
-        // TODO Payment via mpesa
-
-
-        // TODO if payment Successful
-        updateDates(paymentType);
-    }
-
-    private void updateDates(String paymentType) {
-        if (paymentType.equals(SUBS_PAYMENT)) {
-            updateMemberExpiryDate();
-        } else {
-            updateGymExpiryDate();
-        }
-    }
-
-    private void updateMemberExpiryDate() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(member.getMemberExpiryDate());
-        calendar.set(Calendar.YEAR, calendar.get(Calendar.YEAR) + 1);
-        Date newMemberExpiryDate = calendar.getTime();
-
-        memberRef.document(member.getUserID()).update("memberExpiryDate", newMemberExpiryDate);
-        member.setMemberExpiryDate(newMemberExpiryDate);
-        expiryDateText.setText(format.format(newMemberExpiryDate));
-
-        createTransactionTicket(SUBS_PAYMENT, newMemberExpiryDate);
-    }
-
-    private void updateGymExpiryDate() {
-        Calendar calendar = Calendar.getInstance();
-        Log.e("TIME NOW: ", calendar.getTime().toString());
-        Log.e("TIME CHECK: ", String.valueOf(member.getGymExpiryDate().after(calendar.getTime())));
-        if (member.getGymExpiryDate().after(calendar.getTime()))
-            calendar.setTime(member.getGymExpiryDate());
-
-        switch (gymAmountSpinner.getSelectedItem().toString()) {
-            case "Annual:Ksh 28,000/= (Single)":
-            case "Annual:Ksh 40,000/= (Couple)":
-                calendar.add(Calendar.YEAR, 1);
-                break;
-            case "Semi Annual: Ksh 16,000/= (Single)":
-            case "Semi Annual: Ksh 24,000/= (Couple)":
-                calendar.add(Calendar.MONTH, 6);
-                break;
-            case "Quarterly:Ksh 9,000/= (Single and Over 18 only)":
-                calendar.add(Calendar.MONTH, 3);
-                break;
-            case "Monthly:Ksh 3,500/= (Single Only)":
-                calendar.add(Calendar.MONTH, 1);
-                break;
-            case "Daily:Ksh 400/=":
-                calendar.add(Calendar.DATE, 1);
-                break;
-        }
-        Date newGymExpiryDate = calendar.getTime();
-
-        memberRef.document(member.getUserID()).update("gymExpiryDate", newGymExpiryDate);
-        member.setGymExpiryDate(newGymExpiryDate);
-        gymExpiryDate.setText(format.format(newGymExpiryDate));
-
-        createTransactionTicket(GYM_PAYMENT, newGymExpiryDate);
-    }
-
-    private void createTransactionTicket(String paymentType, Date newExpiryDate) {
-
-        Transaction transaction = new Transaction("", Calendar.getInstance().getTime(),
-                paymentType, newExpiryDate, true, member.getMemberType(),
-                member.getFullName());
-
-        transactionRef.add(transaction).addOnCompleteListener(task -> {
-            // TODO close pDialog
-            // TODO display complete message
-            pay.setEnabled(true);
-            Toast.makeText(this, "Payment Successful", Toast.LENGTH_SHORT).show();
-            Utils.updateCurrentMember(member);
-        });
-
-    }
 
     private String getSubMemberType() {
         switch (member.getMemberType()) {
@@ -211,6 +143,7 @@ public class PaymentActivity extends AppCompatActivity {
     }
 
     private void getSubscription(String subMemberType) {
+        subscription = null;
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(member.getMemberExpiryDate().getTime());
 
@@ -222,7 +155,12 @@ public class PaymentActivity extends AppCompatActivity {
             if (task.isSuccessful() && task.getResult() != null && !task.getResult().isEmpty()) {
                 subscription = task.getResult().getDocuments().get(0).toObject(Subscription.class);
                 assert subscription != null;
-                amountDue.setText(String.format("Ksh %s/=", subscription.getSubsTotal()));
+                if (member.getAccountStatus() == MemberStatus.Defaulted) {
+                    amountDue.setText(String.format("Ksh %s/=",
+                            subscription.getSubsTotal() + REINSTATEMENT));
+                } else {
+                    amountDue.setText(String.format("Ksh %s/=", subscription.getSubsTotal()));
+                }
 
                 statement.setVisibility(View.VISIBLE);
             } else {
@@ -258,13 +196,284 @@ public class PaymentActivity extends AppCompatActivity {
         gymAmountSpinner.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, gymOption));
     }
 
+    private boolean isDefaulted() {
+        Calendar calendar = Calendar.getInstance();
+        return member.getAccountStatus() == MemberStatus.Defaulted
+                && calendar.getTime().after(reinstatementDate);
+    }
+
+    private Date getReinstatementDate() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+        calendar.set(Calendar.MONTH, Calendar.APRIL);
+        calendar.set(Calendar.HOUR, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        return calendar.getTime();
+    }
+
+
+    // End Setup Methods----------------------------------------------------------------------------
+
+    // Dialog Methods-------------------------------------------------------------------------------
+
+    private void showPaymentDialog() {
+        paymentOption = null;
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View view = inflater.inflate(R.layout.dialog_payment_option, null);
+
+        setupPaymentDialogView(view);
+
+        builder.setView(view);
+        builder.setTitle("Make Mpesa Payment");
+        builder.setMessage("Please select the payment option.");
+        builder.setNeutralButton("Cancel", (dialog, i) -> {
+            dialog.dismiss();
+        });
+
+        builder.setPositiveButton("Confirm", (dialog, i) -> {
+            if (isValidInput()) {
+                double amount = Double.parseDouble(dialogAmountText.getText().toString());
+                if (member.getAccountStatus() == MemberStatus.Defaulted) amount += REINSTATEMENT;
+                String phonenumber = dialogPhoneNumberText.getText().toString().trim();
+                processPayment(amount, paymentOption, phonenumber);
+            }
+        });
+
+        AlertDialog dialog = builder.create();
+        dialog.setCancelable(false);
+        dialog.show();
+        Button PB = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
+        Button NB = dialog.getButton(DialogInterface.BUTTON_NEUTRAL);
+        PB.setTextSize(18);
+        PB.setTypeface(Typeface.DEFAULT_BOLD);
+        PB.setBackgroundColor(ContextCompat.getColor(this, R.color.ng_blue));
+        PB.setTextColor(ContextCompat.getColor(this, R.color.white));
+        NB.setTextSize(18);
+        NB.setTypeface(Typeface.DEFAULT_BOLD);
+        NB.setBackgroundColor(ContextCompat.getColor(this, R.color.ng_error_red));
+        NB.setTextColor(ContextCompat.getColor(this, R.color.white));
+
+    }
+
+    private void setupPaymentDialogView(View view) {
+
+        dialogPhoneNumberText = view.findViewById(R.id.payment_dialog_phone);
+        dialogAmountText = view.findViewById(R.id.payment_dialog_amount);
+        btn_pay_subs = view.findViewById(R.id.payment_dialog_subs);
+        btn_pay_gym = view.findViewById(R.id.payment_dialog_gym);
+        btn_pay_card = view.findViewById(R.id.payment_dialog_card);
+
+        dialogPhoneNumberText.setText(member.getPhoneNumber());
+
+        if (subscription != null) {
+            btn_pay_subs.setOnClickListener(button -> {
+                setupSubsButton();
+            });
+        } else {
+            btn_pay_subs.setVisibility(View.GONE);
+        }
+
+        if (gymAmountSpinner.getSelectedItemPosition() != 0) {
+            btn_pay_gym.setOnClickListener(button -> {
+                paymentOption = GYM_PAYMENT;
+                double gymAmount = gymAmountsHash.get(gymAmountSpinner.getSelectedItem().toString());
+                dialogAmountText.setText(String.valueOf(gymAmount));
+                dialogAmountText.setEnabled(false);
+                setPaymentOption(btn_pay_gym);
+            });
+        } else {
+            btn_pay_gym.setVisibility(View.GONE);
+        }
+
+        btn_pay_card.setOnClickListener(button -> {
+            setupCardPaymentButton();
+        });
+
+        // Defaulted Members MUST Clear Subs
+        if (member.getAccountStatus() == MemberStatus.Defaulted) {
+            setupSubsButton();
+        }
+
+        // if both subs button & gym button are invisible
+        if (btn_pay_subs.getVisibility() == View.GONE && btn_pay_gym.getVisibility() == View.GONE) {
+            setupCardPaymentButton();
+            btn_pay_card.setText(R.string.card_recharge_text);
+        }
+    }
+
+    private void setupSubsButton() {
+        paymentOption = SUBS_PAYMENT;
+        if (isDefaulted()) {
+            dialogAmountText.setText(String
+                    .valueOf(subscription.getSubsTotal() + REINSTATEMENT));
+            btn_pay_gym.setVisibility(View.GONE);
+            btn_pay_card.setVisibility(View.GONE);
+        } else {
+            dialogAmountText.setText(String.valueOf(subscription.getSubsTotal()));
+        }
+        dialogAmountText.setEnabled(false);
+        setPaymentOption(btn_pay_subs);
+    }
+
+    private void setupCardPaymentButton() {
+        paymentOption = CARD_PAYMENT;
+        dialogAmountText.setText("");
+        dialogAmountText.setEnabled(true);
+        setPaymentOption(btn_pay_card);
+    }
+
+    private boolean isValidInput() {
+        boolean isValid = true;
+        String message = "";
+        double amount;
+
+        try {
+            amount = Double.parseDouble(dialogAmountText.getText().toString());
+        } catch (Exception e) {
+            amount = 0;
+        }
+
+        if (dialogPhoneNumberText.getText().toString().length() != 10) {
+            message += "Please enter a valid phone number\n";
+        }
+
+        if (paymentOption == null) {
+            message += "Please selected the type of payment you want to make\n";
+        }
+
+        if (amount == 0) {
+            message += "Amount can not be 0";
+        }
+
+
+        if (!message.equals("")) {
+            isValid = false;
+            Utils.displayMessage(this, "Error!", message);
+        }
+
+        return isValid;
+    }
+
+    //Change background colour for
+    // the selected payment type in dialog
+    private void setPaymentOption(Button button) {
+        btn_pay_subs.setBackground(ContextCompat.getDrawable(this, R.drawable.primary_button_blue));
+        btn_pay_gym.setBackground(ContextCompat.getDrawable(this, R.drawable.primary_button_blue));
+        btn_pay_card.setBackground(ContextCompat.getDrawable(this, R.drawable.primary_button_blue));
+
+        btn_pay_subs.setEnabled(true);
+        btn_pay_gym.setEnabled(true);
+        btn_pay_card.setEnabled(true);
+
+        button.setBackground(ContextCompat.getDrawable(this, R.drawable.primary_button_red));
+        button.setEnabled(false);
+    }
+
+    // End Dialog Methods---------------------------------------------------------------------------
+
+    // Make M-Pesa payment and create transaction ticket--------------------------------------------
+    private void processPayment(double amount, String paymentType, String phoneNumber) {
+        pDialog.setTitle("Making Payment...");
+        pDialog.show();
+
+        String mpesaAccountRef;
+        if (paymentType.equals(SUBS_PAYMENT)) {
+            mpesaAccountRef = SUBS_ACC + "#" + member.getMembershipNo();
+        } else {
+            mpesaAccountRef = PREPAID_ACC + "#" + member.getMembershipNo();
+        }
+        // TODO Payment via mpesa
+
+
+        // TODO if payment Successful
+        updateDates(paymentType);
+    }
+
+    private void updateDates(String paymentType) {
+        if (paymentType.equals(SUBS_PAYMENT)) {
+            updateMemberExpiryDate();
+        } else if (paymentType.equals(GYM_PAYMENT)) {
+            updateGymExpiryDate();
+        } else {
+            createTransactionTicket(CARD_PAYMENT, null);
+        }
+    }
+
+    private void updateMemberExpiryDate() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(member.getMemberExpiryDate());
+        calendar.set(Calendar.YEAR, calendar.get(Calendar.YEAR) + 1);
+        Date newMemberExpiryDate = calendar.getTime();
+
+        memberRef.document(member.getUserID()).update("memberExpiryDate", newMemberExpiryDate,
+                "accountStatus", MemberStatus.Active);
+        member.setMemberExpiryDate(newMemberExpiryDate);
+        member.setAccountStatus(MemberStatus.Active);
+        expiryDateText.setText(format.format(newMemberExpiryDate));
+
+        createTransactionTicket(SUBS_PAYMENT, newMemberExpiryDate);
+
+        if (!getSubMemberType().equals("")) {
+            getSubscription(getSubMemberType());
+        }
+    }
+
+    private void updateGymExpiryDate() {
+        Calendar calendar = Calendar.getInstance();
+        if (member.getGymExpiryDate().after(calendar.getTime()))
+            calendar.setTime(member.getGymExpiryDate());
+
+        switch (gymAmountSpinner.getSelectedItem().toString()) {
+            case "Annual:Ksh 28,000/= (Single)":
+            case "Annual:Ksh 40,000/= (Couple)":
+                calendar.add(Calendar.YEAR, 1);
+                break;
+            case "Semi Annual: Ksh 16,000/= (Single)":
+            case "Semi Annual: Ksh 24,000/= (Couple)":
+                calendar.add(Calendar.MONTH, 6);
+                break;
+            case "Quarterly:Ksh 9,000/= (Single and Over 18 only)":
+                calendar.add(Calendar.MONTH, 3);
+                break;
+            case "Monthly:Ksh 3,500/= (Single Only)":
+                calendar.add(Calendar.MONTH, 1);
+                break;
+            case "Daily:Ksh 400/=":
+                calendar.add(Calendar.DATE, 1);
+                break;
+        }
+        Date newGymExpiryDate = calendar.getTime();
+
+        memberRef.document(member.getUserID()).update("gymExpiryDate", newGymExpiryDate);
+        member.setGymExpiryDate(newGymExpiryDate);
+        gymExpiryDate.setText(format.format(newGymExpiryDate));
+
+        createTransactionTicket(GYM_PAYMENT, newGymExpiryDate);
+    }
+
+    private void createTransactionTicket(String paymentType, Date newExpiryDate) {
+
+        Transaction transaction = new Transaction("", Calendar.getInstance().getTime(),
+                paymentType, newExpiryDate, true, member.getUserID(),
+                member.getMembershipNo(), member.getFullName());
+
+        transactionRef.add(transaction).addOnCompleteListener(task -> {
+            if (pDialog != null) pDialog.dismiss();
+            Utils.displayMessage(this, "Success", "Payment done successfully");
+            Utils.updateCurrentMember(member);
+        });
+
+    }
+
+    //End Make M-Pesa payment and create transaction ticket-----------------------------------------
+
     @Override
     public void onBackPressed() {
         if (member.getAccountStatus() == MemberStatus.Defaulted) {
-            Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-            startActivity(intent);
+            Utils.logoutUser(this);
         } else {
-            finish();
+            Utils.gotoActivity(this, MainActivity.class);
         }
     }
 }

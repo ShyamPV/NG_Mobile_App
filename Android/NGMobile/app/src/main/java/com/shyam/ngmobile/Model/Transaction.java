@@ -9,6 +9,7 @@ public class Transaction {
     private String transactionType;
     private Date newExpiryDate;
     private boolean isPending;
+    private String memberID;
     private String membershipNo;
     private String memberName;
 
@@ -18,12 +19,13 @@ public class Transaction {
 
     public Transaction(String transactionID, Date transactionDate,
                        String transactionType, Date newExpiryDate, boolean isPending,
-                       String membershipNo, String memberName) {
+                       String memberID, String membershipNo, String memberName) {
         this.transactionID = transactionID;
         this.transactionDate = transactionDate;
         this.transactionType = transactionType;
         this.newExpiryDate = newExpiryDate;
         this.isPending = isPending;
+        this.memberID = memberID;
         this.membershipNo = membershipNo;
         this.memberName = memberName;
     }
@@ -46,6 +48,10 @@ public class Transaction {
 
     public boolean isPending() {
         return isPending;
+    }
+
+    public String getMemberID() {
+        return memberID;
     }
 
     public String getMembershipNo() {

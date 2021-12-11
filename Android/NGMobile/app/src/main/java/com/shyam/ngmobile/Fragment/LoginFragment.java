@@ -25,6 +25,7 @@ import com.shyam.ngmobile.Services.Utils;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Calendar;
 import java.util.Objects;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
@@ -59,8 +60,6 @@ public class LoginFragment extends Fragment {
         pDialog.setTitle("Authenticating...");
         pDialog.getProgressHelper().setBarColor(ContextCompat.getColor(requireContext(), R.color.ng_blue));
         pDialog.setCancelable(false);
-
-        if (mAuth.getUid() != null) getFirestoreUser(mAuth.getUid());
 
         btnForgotPwd.setOnClickListener(view1 -> {
             requireActivity().getSupportFragmentManager().beginTransaction()
@@ -108,13 +107,13 @@ public class LoginFragment extends Fragment {
     private void validateMember(Member member) {
         if (pDialog != null) pDialog.dismiss();
         if (member.getAccountStatus() == MemberStatus.Cancelled) {
-            Utils.displayMessage(requireActivity(), "", "Your Membership was cancelled." +
+            Utils.displayMessage(requireActivity(), "Error!", "Your Membership was cancelled." +
                     "\nYou can not use this application");
             mAuth.signOut();
-        } else if (member.getAccountStatus() == MemberStatus.Defaulted) {
+        } else if (Calendar.getInstance().getTime().after(member.getMemberExpiryDate())) {
+            memberRef.document(member.getUserID()).update("accountStatus", MemberStatus.Defaulted);
+            member.setAccountStatus(MemberStatus.Defaulted);
             Utils.setCurrentMember(member);
-            Utils.displayMessage(requireActivity(), "", "Your account has defaulted" +
-                    "\nKindly pay your subscriptions.");
             openPaymentActivity();
         } else {
             Utils.setCurrentMember(member);

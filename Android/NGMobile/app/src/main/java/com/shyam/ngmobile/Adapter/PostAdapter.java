@@ -3,6 +3,7 @@ package com.shyam.ngmobile.Adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -10,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.shyam.ngmobile.Model.Post;
 import com.shyam.ngmobile.R;
+import com.squareup.picasso.Picasso;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -60,12 +62,14 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostHolder> {
     public class PostHolder extends RecyclerView.ViewHolder {
 
         TextView postTitle, postDate;
+        ImageView image;
 
         public PostHolder(@NonNull @NotNull View itemView) {
             super(itemView);
 
             postTitle = itemView.findViewById(R.id.post_title_text);
             postDate = itemView.findViewById(R.id.post_date_text);
+            image = itemView.findViewById(R.id.post_image_view);
             itemView.setOnClickListener(view -> {
                 int position = getAdapterPosition();
                 if (position != RecyclerView.NO_POSITION || listener != null) {
@@ -75,8 +79,13 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostHolder> {
         }
 
         public void setDetails(Post post) {
+            if (!post.getImageURL().equals("")) {
+                Picasso.get().load(post.getImageURL()).into(image);
+            }else{
+                image.setImageResource(R.drawable.ng_logo_transparent);
+            }
             postTitle.setText(post.getTitle());
-            postDate.setText(new StringBuilder().append("Date: ").append(dateFormatter.format(post.getStartTime())).toString());
+            postDate.setText(String.format("Date: %s", dateFormatter.format(post.getStartTime())));
         }
     }
 
