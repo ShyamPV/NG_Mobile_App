@@ -12,6 +12,7 @@ public class Transaction {
     private String memberID;
     private String membershipNo;
     private String memberName;
+    private double amountPaid;
 
     public Transaction() {
 
@@ -19,7 +20,7 @@ public class Transaction {
 
     public Transaction(String transactionID, Date transactionDate,
                        String transactionType, Date newExpiryDate, boolean isPending,
-                       String memberID, String membershipNo, String memberName) {
+                       String memberID, String membershipNo, String memberName, double amountPaid) {
         this.transactionID = transactionID;
         this.transactionDate = transactionDate;
         this.transactionType = transactionType;
@@ -28,6 +29,7 @@ public class Transaction {
         this.memberID = memberID;
         this.membershipNo = membershipNo;
         this.memberName = memberName;
+        this.amountPaid = amountPaid;
     }
 
     public String getTransactionID() {
@@ -60,5 +62,9 @@ public class Transaction {
 
     public String getMemberName() {
         return memberName;
+    }
+
+    public double getAmountPaid() {
+        return amountPaid;
     }
 }

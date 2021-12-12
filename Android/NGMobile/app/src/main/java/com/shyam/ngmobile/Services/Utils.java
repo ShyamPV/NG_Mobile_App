@@ -14,7 +14,6 @@ import androidx.core.content.ContextCompat;
 import com.google.firebase.auth.FirebaseAuth;
 import com.shyam.ngmobile.LoginActivity;
 import com.shyam.ngmobile.Model.Member;
-import com.shyam.ngmobile.Model.Subscription;
 import com.shyam.ngmobile.R;
 
 public class Utils {
@@ -72,7 +71,7 @@ public class Utils {
         gotoActivity(activity, LoginActivity.class);
     }
 
-    public static void generateMemberStatement(Member member, Subscription subscription) {
+    public static void generateMemberStatement(Member member) {
         // TODO Create PDF Statement
 
     }

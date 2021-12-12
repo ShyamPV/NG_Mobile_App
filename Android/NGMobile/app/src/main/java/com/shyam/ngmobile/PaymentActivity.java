@@ -16,6 +16,7 @@ import androidx.core.content.ContextCompat;
 
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.shyam.ngmobile.Enums.MemberStatus;
 import com.shyam.ngmobile.Model.Member;
 import com.shyam.ngmobile.Model.Subscription;
@@ -23,6 +24,7 @@ import com.shyam.ngmobile.Model.Transaction;
 import com.shyam.ngmobile.Services.Utils;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -58,7 +60,8 @@ public class PaymentActivity extends AppCompatActivity {
     private Button statement, pay, btn_pay_subs, btn_pay_gym, btn_pay_card;
     private SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH);
     private Member member;
-    private Subscription subscription;
+    private ArrayList<Subscription> subscriptionList;
+    private double subsTotal;
     private SweetAlertDialog pDialog;
 
     private CollectionReference subsRef;
@@ -87,9 +90,10 @@ public class PaymentActivity extends AppCompatActivity {
         pDialog.getProgressHelper().setBarColor(ContextCompat.getColor(this, R.color.ng_blue));
         pDialog.setCancelable(false);
         pDialog.show();
-        reinstatementDate = getReinstatementDate();
+
 
         member = Utils.getCurrentMember();
+        reinstatementDate = getReinstatementDate();
 
         if (isDefaulted())
             Utils.displayMessage(this, "", "Your account has defaulted" +
@@ -117,7 +121,7 @@ public class PaymentActivity extends AppCompatActivity {
         });
 
         statement.setOnClickListener(view -> {
-            Utils.generateMemberStatement(member, subscription);
+            Utils.generateMemberStatement(member);
         });
 
         if (!subMemberType.equals("")) {
@@ -143,23 +147,31 @@ public class PaymentActivity extends AppCompatActivity {
     }
 
     private void getSubscription(String subMemberType) {
-        subscription = null;
+        
+        subscriptionList = new ArrayList<>();
+        subsTotal = 0;
+
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(member.getMemberExpiryDate().getTime());
 
         int subsYear = calendar.get(Calendar.YEAR);
 
-        subsRef.whereEqualTo("subsYear", subsYear)
+        subsRef.whereGreaterThanOrEqualTo("subsYear", subsYear)
                 .whereEqualTo("memberType", subMemberType)
                 .get().addOnCompleteListener(task -> {
             if (task.isSuccessful() && task.getResult() != null && !task.getResult().isEmpty()) {
-                subscription = task.getResult().getDocuments().get(0).toObject(Subscription.class);
-                assert subscription != null;
-                if (member.getAccountStatus() == MemberStatus.Defaulted) {
+
+                for (QueryDocumentSnapshot snapshot : task.getResult()) {
+                    Subscription subscription = snapshot.toObject(Subscription.class);
+                    subscriptionList.add(subscription);
+                    subsTotal += subscription.getSubsTotal();
+                }
+
+                if (isDefaulted()) {
                     amountDue.setText(String.format("Ksh %s/=",
-                            subscription.getSubsTotal() + REINSTATEMENT));
+                            subsTotal + REINSTATEMENT));
                 } else {
-                    amountDue.setText(String.format("Ksh %s/=", subscription.getSubsTotal()));
+                    amountDue.setText(String.format("Ksh %s/=", subsTotal));
                 }
 
                 statement.setVisibility(View.VISIBLE);
@@ -176,6 +188,9 @@ public class PaymentActivity extends AppCompatActivity {
         gymAmountsHash.put("Please select (optional)", (double) 0);
         gymAmountsHash.put("Annual:Ksh 28,000/= (Single)", (double) 28000);
         gymAmountsHash.put("Annual:Ksh 40,000/= (Couple)", (double) 40000);
+        if (member.getMemberType().equals(JUNIOR)) {
+            gymAmountsHash.put("Annual:Ksh 28,000/= (Junior)", (double) 28000);
+        }
         gymAmountsHash.put("Semi Annual: Ksh 16,000/= (Single)", (double) 16000);
         gymAmountsHash.put("Semi Annual: Ksh 24,000/= (Couple) ", (double) 24000);
         gymAmountsHash.put("Quarterly:Ksh 9,000/= (Single and Over 18 only)", (double) 9000);
@@ -204,6 +219,7 @@ public class PaymentActivity extends AppCompatActivity {
 
     private Date getReinstatementDate() {
         Calendar calendar = Calendar.getInstance();
+        calendar.setTime(member.getMemberExpiryDate());
         calendar.set(Calendar.DAY_OF_MONTH, 1);
         calendar.set(Calendar.MONTH, Calendar.APRIL);
         calendar.set(Calendar.HOUR, 0);
@@ -234,7 +250,6 @@ public class PaymentActivity extends AppCompatActivity {
         builder.setPositiveButton("Confirm", (dialog, i) -> {
             if (isValidInput()) {
                 double amount = Double.parseDouble(dialogAmountText.getText().toString());
-                if (member.getAccountStatus() == MemberStatus.Defaulted) amount += REINSTATEMENT;
                 String phonenumber = dialogPhoneNumberText.getText().toString().trim();
                 processPayment(amount, paymentOption, phonenumber);
             }
@@ -266,7 +281,7 @@ public class PaymentActivity extends AppCompatActivity {
 
         dialogPhoneNumberText.setText(member.getPhoneNumber());
 
-        if (subscription != null) {
+        if (subsTotal != 0) {
             btn_pay_subs.setOnClickListener(button -> {
                 setupSubsButton();
             });
@@ -306,11 +321,11 @@ public class PaymentActivity extends AppCompatActivity {
         paymentOption = SUBS_PAYMENT;
         if (isDefaulted()) {
             dialogAmountText.setText(String
-                    .valueOf(subscription.getSubsTotal() + REINSTATEMENT));
+                    .valueOf(subsTotal + REINSTATEMENT));
             btn_pay_gym.setVisibility(View.GONE);
             btn_pay_card.setVisibility(View.GONE);
         } else {
-            dialogAmountText.setText(String.valueOf(subscription.getSubsTotal()));
+            dialogAmountText.setText(String.valueOf(subsTotal));
         }
         dialogAmountText.setEnabled(false);
         setPaymentOption(btn_pay_subs);
@@ -387,23 +402,23 @@ public class PaymentActivity extends AppCompatActivity {
 
 
         // TODO if payment Successful
-        updateDates(paymentType);
+        updateDates(paymentType, amount);
     }
 
-    private void updateDates(String paymentType) {
+    private void updateDates(String paymentType, double amount) {
         if (paymentType.equals(SUBS_PAYMENT)) {
-            updateMemberExpiryDate();
+            updateMemberExpiryDate(amount);
         } else if (paymentType.equals(GYM_PAYMENT)) {
-            updateGymExpiryDate();
+            updateGymExpiryDate(amount);
         } else {
-            createTransactionTicket(CARD_PAYMENT, null);
+            createTransactionTicket(CARD_PAYMENT, null, amount);
         }
     }
 
-    private void updateMemberExpiryDate() {
+    private void updateMemberExpiryDate(double amount) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(member.getMemberExpiryDate());
-        calendar.set(Calendar.YEAR, calendar.get(Calendar.YEAR) + 1);
+        calendar.set(Calendar.YEAR, calendar.get(Calendar.YEAR) + subscriptionList.size());
         Date newMemberExpiryDate = calendar.getTime();
 
         memberRef.document(member.getUserID()).update("memberExpiryDate", newMemberExpiryDate,
@@ -412,14 +427,14 @@ public class PaymentActivity extends AppCompatActivity {
         member.setAccountStatus(MemberStatus.Active);
         expiryDateText.setText(format.format(newMemberExpiryDate));
 
-        createTransactionTicket(SUBS_PAYMENT, newMemberExpiryDate);
+        createTransactionTicket(SUBS_PAYMENT, newMemberExpiryDate, amount);
 
         if (!getSubMemberType().equals("")) {
             getSubscription(getSubMemberType());
         }
     }
 
-    private void updateGymExpiryDate() {
+    private void updateGymExpiryDate(double amount) {
         Calendar calendar = Calendar.getInstance();
         if (member.getGymExpiryDate().after(calendar.getTime()))
             calendar.setTime(member.getGymExpiryDate());
@@ -427,6 +442,7 @@ public class PaymentActivity extends AppCompatActivity {
         switch (gymAmountSpinner.getSelectedItem().toString()) {
             case "Annual:Ksh 28,000/= (Single)":
             case "Annual:Ksh 40,000/= (Couple)":
+            case "Annual:Ksh 28,000/= (Junior)":
                 calendar.add(Calendar.YEAR, 1);
                 break;
             case "Semi Annual: Ksh 16,000/= (Single)":
@@ -449,14 +465,14 @@ public class PaymentActivity extends AppCompatActivity {
         member.setGymExpiryDate(newGymExpiryDate);
         gymExpiryDate.setText(format.format(newGymExpiryDate));
 
-        createTransactionTicket(GYM_PAYMENT, newGymExpiryDate);
+        createTransactionTicket(GYM_PAYMENT, newGymExpiryDate, amount);
     }
 
-    private void createTransactionTicket(String paymentType, Date newExpiryDate) {
+    private void createTransactionTicket(String paymentType, Date newExpiryDate, double amount) {
 
         Transaction transaction = new Transaction("", Calendar.getInstance().getTime(),
                 paymentType, newExpiryDate, true, member.getUserID(),
-                member.getMembershipNo(), member.getFullName());
+                member.getMembershipNo(), member.getFullName(), amount);
 
         transactionRef.add(transaction).addOnCompleteListener(task -> {
             if (pDialog != null) pDialog.dismiss();
