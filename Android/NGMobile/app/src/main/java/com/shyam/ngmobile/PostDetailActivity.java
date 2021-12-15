@@ -1,11 +1,17 @@
 package com.shyam.ngmobile;
 
 import android.content.Intent;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.Settings;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -14,6 +20,11 @@ import com.shyam.ngmobile.Model.Post;
 import com.shyam.ngmobile.Services.Utils;
 import com.squareup.picasso.Picasso;
 
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
@@ -88,7 +99,18 @@ public class PostDetailActivity extends AppCompatActivity {
         if (!post.getDocumentURL().equals("")) {
             btnGetDocument.setVisibility(View.VISIBLE);
             btnGetDocument.setOnClickListener(view -> {
-                downloadDocument(post.getDocumentURL());
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    if (Environment.isExternalStorageManager()) {
+                        new DownloadFile().execute();
+                    } else {
+                        Toast.makeText(this,
+                                "Please allow access to save documents.", Toast.LENGTH_LONG).show();
+                        Intent permissionIntent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+                        startActivity(permissionIntent);
+                    }
+                } else {
+                    new DownloadFile().execute();
+                }
             });
         } else {
             btnGetDocument.setVisibility(View.GONE);
@@ -105,8 +127,48 @@ public class PostDetailActivity extends AppCompatActivity {
         pDialog.dismiss();
     }
 
-    private void downloadDocument(String documentURL) {
+    class DownloadFile extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... voids) {
+            String folderPath = Environment.getExternalStorageDirectory()
+                    .getAbsolutePath() + "/Documents/Nairobi Gymkhana/";
+            File savePath = new File(folderPath);
 
+            try {
+                savePath.mkdirs();
+                File file = new File(savePath, post.getTitle() + ".pdf");
+                file.delete();
+
+                URL url = new URL(post.getDocumentURL());
+                InputStream inputStream = url.openStream();
+
+                DataInputStream dataInputStream = new DataInputStream(inputStream);
+                byte[] buffer = new byte[1024];
+                int length;
+
+                FileOutputStream fos = new FileOutputStream(file);
+                while ((length = dataInputStream.read(buffer)) > 0) {
+                    fos.write(buffer, 0, length);
+                }
+
+                inputStream.close();
+                fos.flush();
+                fos.close();
+
+
+            } catch (Exception e) {
+                Log.e("doInBackground: ", e.getMessage());
+                e.getStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void unused) {
+            Toast.makeText(PostDetailActivity.this,
+                    "Download Complete: Saved in /Documents/Nairobi Gymkhana/"
+                            + post.getTitle() + ".pdf", Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override

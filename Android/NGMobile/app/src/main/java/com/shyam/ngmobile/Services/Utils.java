@@ -5,7 +5,11 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Typeface;
+import android.graphics.pdf.PdfDocument;
+import android.os.Environment;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -14,7 +18,13 @@ import androidx.core.content.ContextCompat;
 import com.google.firebase.auth.FirebaseAuth;
 import com.shyam.ngmobile.LoginActivity;
 import com.shyam.ngmobile.Model.Member;
+import com.shyam.ngmobile.Model.Subscription;
 import com.shyam.ngmobile.R;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
 
 public class Utils {
     private static FirebaseAuth mAuth = FirebaseAuth.getInstance();
@@ -69,10 +79,5 @@ public class Utils {
     public static void logoutUser(Activity activity) {
         mAuth.signOut();
         gotoActivity(activity, LoginActivity.class);
-    }
-
-    public static void generateMemberStatement(Member member) {
-        // TODO Create PDF Statement
-
     }
 }
