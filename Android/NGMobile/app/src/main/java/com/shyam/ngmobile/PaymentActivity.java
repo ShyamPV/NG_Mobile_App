@@ -2,6 +2,7 @@ package com.shyam.ngmobile;
 
 import android.Manifest;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -9,9 +10,10 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.graphics.pdf.PdfDocument;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.util.Log;
+import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -149,9 +151,9 @@ public class PaymentActivity extends AppCompatActivity {
 
         if (!subMemberType.equals("")) {
             getSubscription(subMemberType);
+        }else{
+            pDialog.dismiss();
         }
-
-        pDialog.dismiss();
     }
 
     // Subscription---------------------------------------------------------------------------------
@@ -196,6 +198,8 @@ public class PaymentActivity extends AppCompatActivity {
                 amountDue.setText(R.string.zero_amount);
                 statement.setVisibility(View.GONE);
             }
+
+            pDialog.dismiss();
         });
 
     }
@@ -586,8 +590,16 @@ public class PaymentActivity extends AppCompatActivity {
             Toast.makeText(this, "Saved to:" + file.toString(), Toast.LENGTH_LONG).show();
 
         } catch (IOException e) {
-            Log.e("Generate Statement:", e.getMessage());
-            e.printStackTrace();
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !Environment.isExternalStorageManager()) {
+                Intent permissionIntent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+                startActivity(permissionIntent);
+                Toast.makeText(this,
+                        "Please allow access to save statements.", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(this,
+                        "Could not Save the statement", Toast.LENGTH_LONG).show();
+            }
         }
 
         document.close();

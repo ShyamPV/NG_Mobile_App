@@ -29,12 +29,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-
-        if (Utils.getCurrentMember() != null) {
+        try {
             member = Utils.getCurrentMember();
             setup();
-        } else {
+        } catch (Exception e) {
             Toast.makeText(getApplicationContext(), "No Member found", Toast.LENGTH_SHORT).show();
             Utils.logoutUser(this);
         }
