@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.shyam.ngmobile.Enums.MemberStatus;
 import com.shyam.ngmobile.Model.Member;
 import com.shyam.ngmobile.Model.Subscription;
@@ -23,6 +24,9 @@ public class SplashActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private CollectionReference memberRef;
+    //TODO Add new notification topics here
+    private static final String CLUB_UPDATES = "club_updates";
+
 
     // TODO remove this once payment is implemented
     private static final String ORDINARY = "Ordinary Member";
@@ -40,9 +44,15 @@ public class SplashActivity extends AppCompatActivity {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         memberRef = db.collection("member");
 
+        setupNotification();
+
         if (mAuth.getUid() != null) getFirestoreUser(mAuth.getUid());
         else openLogin();
 
+    }
+
+    private void setupNotification() {
+        FirebaseMessaging.getInstance().subscribeToTopic(CLUB_UPDATES);
     }
 
     private void getFirestoreUser(String userID) {
