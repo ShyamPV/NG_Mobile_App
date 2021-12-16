@@ -19,13 +19,16 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.shyam.ngmobile.Enums.MemberStatus;
 import com.shyam.ngmobile.MainActivity;
 import com.shyam.ngmobile.Model.Member;
+import com.shyam.ngmobile.Model.Subscription;
 import com.shyam.ngmobile.PaymentActivity;
 import com.shyam.ngmobile.R;
 import com.shyam.ngmobile.Services.Utils;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.text.DecimalFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Objects;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
@@ -38,6 +41,10 @@ public class LoginFragment extends Fragment {
     private SweetAlertDialog pDialog;
 
     private EditText emailText, passwordText;
+
+    // TODO Remove this after payment is working
+    private static final String ORDINARY = "Ordinary Member";
+    private static final String UPCOUNTRY = "Upcountry Member";
 
     @Nullable
     @org.jetbrains.annotations.Nullable
@@ -113,8 +120,11 @@ public class LoginFragment extends Fragment {
         } else if (Calendar.getInstance().getTime().after(member.getMemberExpiryDate())) {
             memberRef.document(member.getUserID()).update("accountStatus", MemberStatus.Defaulted);
             member.setAccountStatus(MemberStatus.Defaulted);
-            Utils.setCurrentMember(member);
-            openPaymentActivity();
+            getSubsAmount(getDefaultedDate(member), member);
+            // TODO Change thi once payment is implemented
+//            Utils.setCurrentMember(member);
+//            openPaymentActivity();
+            mAuth.signOut();
         } else {
             Utils.setCurrentMember(member);
             openHomeActivity();
@@ -138,6 +148,59 @@ public class LoginFragment extends Fragment {
 
         return isValid;
     }
+
+    // TODO Remove this once payment is implemented-------------------------------------------------
+    private void getSubsAmount(Date defaultedDate, Member member) {
+        final DecimalFormat decimalFormatter = new DecimalFormat("###,###,###.00");
+        String memberType;
+
+        if (member.getMemberType().equals(ORDINARY) || member.getMemberType().equals(UPCOUNTRY)) {
+            memberType = "Full Member";
+        } else {
+            memberType = member.getMemberType();
+        }
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(member.getMemberExpiryDate());
+        int year = calendar.get(Calendar.YEAR);
+
+        FirebaseFirestore.getInstance().collection("subscription")
+                .whereEqualTo("subsYear", year)
+                .whereEqualTo("memberType", memberType)
+                .get().addOnCompleteListener(task -> {
+
+            String message = "Subscriptions are due. Please visit the club to pay.\n";
+            if (task.isSuccessful() && task.getResult() != null && !task.getResult().isEmpty()) {
+                Subscription subscription = task.getResult().getDocuments().get(0).toObject(Subscription.class);
+                message += "You can also pay via M-Pesa.\n" +
+                        "Paybill: 542542\n" +
+                        "Account No: 000550#" + member.getMembershipNo() + "\n";
+                double amount = 0;
+                Date today = Calendar.getInstance().getTime();
+                if (today.after(defaultedDate)) {
+                    amount = subscription.getSubsTotal() + 5000;
+                } else {
+                    amount = subscription.getSubsTotal();
+                }
+
+                message += "Amount: Ksh " + decimalFormatter.format(amount) + "/=";
+
+            }
+            Utils.displayMessage(requireActivity(), "Error!", message);
+        });
+    }
+
+    private Date getDefaultedDate(Member member) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(member.getMemberExpiryDate());
+        calendar.set(Calendar.MONTH, Calendar.APRIL);
+        calendar.set(Calendar.DATE, 1);
+
+        return calendar.getTime();
+    }
+
+    //----------------------------------------------------------------------------------------------
+
 
     private void openPaymentActivity() {
         Utils.gotoActivity(requireActivity(), PaymentActivity.class);

@@ -151,7 +151,7 @@ public class PaymentActivity extends AppCompatActivity {
 
         if (!subMemberType.equals("")) {
             getSubscription(subMemberType);
-        }else{
+        } else {
             pDialog.dismiss();
         }
     }

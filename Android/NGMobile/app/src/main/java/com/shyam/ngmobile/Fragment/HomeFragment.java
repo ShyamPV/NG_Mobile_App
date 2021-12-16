@@ -29,6 +29,9 @@ import com.shyam.ngmobile.Services.Utils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
 
@@ -47,6 +50,7 @@ public class HomeFragment extends Fragment {
     private boolean isLastItemReached;
     private ArrayList<Post> postList;
     private SweetAlertDialog pDialog;
+    private Date today;
 
 
     @Nullable
@@ -68,10 +72,12 @@ public class HomeFragment extends Fragment {
         postRef = db.collection("post");
         pageListLimit = 10;
 
+
         pDialog = new SweetAlertDialog(view.getContext(), SweetAlertDialog.PROGRESS_TYPE);
         pDialog.setTitle("Getting Posts...");
         pDialog.getProgressHelper().setBarColor(ContextCompat.getColor(requireContext(), R.color.ng_blue));
         pDialog.setCancelable(false);
+
 
         Query query = postRef.orderBy("startTime", Query.Direction.DESCENDING).limit(pageListLimit);
 
