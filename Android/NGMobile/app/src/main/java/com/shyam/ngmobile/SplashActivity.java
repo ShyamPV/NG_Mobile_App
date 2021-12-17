@@ -71,7 +71,6 @@ public class SplashActivity extends AppCompatActivity {
         }
     }
 
-
     private void validateMember(Member member) {
         if (member.getAccountStatus() == MemberStatus.Cancelled) {
             openLogin();

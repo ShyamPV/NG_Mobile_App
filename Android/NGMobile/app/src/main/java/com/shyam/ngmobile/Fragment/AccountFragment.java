@@ -206,7 +206,6 @@ public class AccountFragment extends Fragment {
         });
     }
 
-
     private void updatePassword() {
         String password = passwordText.getText().toString();
         FirebaseUser user = mAuth.getCurrentUser();
@@ -223,11 +222,9 @@ public class AccountFragment extends Fragment {
 
     }
 
-
     private void dismissDialog() {
         if (pDialog != null) pDialog.dismiss();
     }
-
 
     private boolean validInput() {
         boolean valid = true;
