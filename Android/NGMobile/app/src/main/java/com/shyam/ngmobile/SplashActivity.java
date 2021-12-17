@@ -2,6 +2,8 @@ package com.shyam.ngmobile;
 
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,7 +20,6 @@ import com.shyam.ngmobile.Services.Utils;
 import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Objects;
 
 public class SplashActivity extends AppCompatActivity {
 
@@ -56,14 +57,18 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void getFirestoreUser(String userID) {
-        memberRef.document(userID).get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                Member member = Objects.requireNonNull(task.getResult()).toObject(Member.class);
-                validateMember(member);
-            } else {
-                openLogin();
-            }
-        });
+        try {
+            memberRef.document(userID).get().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    Member member = task.getResult().toObject(Member.class);
+                    validateMember(member);
+                } else {
+                    openLogin();
+                }
+            }).addOnFailureListener(e -> Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show());
+        } catch (Exception e) {
+            Log.e("getFirestoreUser: ", e.getMessage());
+        }
     }
 
 

@@ -309,6 +309,7 @@ public class AccountFragment extends Fragment {
                 subscription = task.getResult().getDocuments().get(0).toObject(Subscription.class);
             } else {
                 subscription = null;
+                btnMyWallet.setVisibility(View.GONE);
             }
         });
 
