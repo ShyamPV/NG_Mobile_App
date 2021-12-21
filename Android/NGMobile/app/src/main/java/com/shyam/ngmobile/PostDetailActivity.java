@@ -2,10 +2,8 @@ package com.shyam.ngmobile;
 
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -98,20 +96,7 @@ public class PostDetailActivity extends AppCompatActivity {
 
         if (!post.getDocumentURL().equals("")) {
             btnGetDocument.setVisibility(View.VISIBLE);
-            btnGetDocument.setOnClickListener(view -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    if (Environment.isExternalStorageManager()) {
-                        new DownloadFile().execute();
-                    } else {
-                        Toast.makeText(this,
-                                "Please allow access to save documents.", Toast.LENGTH_LONG).show();
-                        Intent permissionIntent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
-                        startActivity(permissionIntent);
-                    }
-                } else {
-                    new DownloadFile().execute();
-                }
-            });
+            btnGetDocument.setOnClickListener(view -> new DownloadFile().execute());
         } else {
             btnGetDocument.setVisibility(View.GONE);
         }
@@ -130,6 +115,7 @@ public class PostDetailActivity extends AppCompatActivity {
     class DownloadFile extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... voids) {
+
             String folderPath = Environment.getExternalStorageDirectory()
                     .getAbsolutePath() + "/Documents/Nairobi Gymkhana/";
             File savePath = new File(folderPath);

@@ -1,16 +1,20 @@
 package com.shyam.ngmobile.Fragment;
 
-import android.content.Intent;
+import android.Manifest;
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.graphics.pdf.PdfDocument;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.Settings;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +25,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
@@ -37,6 +42,7 @@ import com.shyam.ngmobile.Services.Utils;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -123,8 +129,20 @@ public class AccountFragment extends Fragment {
 //            Intent intent = new Intent(getContext(), PaymentActivity.class);
 //            intent.putExtra(MEMBER_ID, member.getUserID());
 //            startActivity(intent);
+                try {
+                    if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                        Toast.makeText(requireContext(), "Please allow storage access in order to save statement", Toast.LENGTH_LONG).show();
+                        ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                    } else if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+                        Utils.displayMessage(requireActivity(), "Error!", "Can not save statement.\nPlease allow storage permission");
+                    } else {
+                        generateMemberStatement(member, subscription);
+                    }
 
-                generateMemberStatement(member, subscription);
+                } catch (Exception e) {
+                    Toast.makeText(requireContext(), "Could not create the statement. Please contact the club.", Toast.LENGTH_LONG).show();
+                }
+
             });
         } else {
             btnMyWallet.setVisibility(View.GONE);
@@ -349,31 +367,41 @@ public class AccountFragment extends Fragment {
 
 
         document.finishPage(page);
-        String folderPath = Environment.getExternalStorageDirectory()
-                .getAbsolutePath() + "/Documents/Nairobi Gymkhana/";
-        File savePath = new File(folderPath);
-
-        File file = new File(savePath,
-                String.format("Statement - %s.pdf", member.getMembershipNo()));
+        String folderPath = Environment.DIRECTORY_DOCUMENTS + File.separator + "Nairobi Gymkhana";
 
         try {
-            savePath.mkdirs();
-            document.writeTo(new FileOutputStream(file));
-            Toast.makeText(getContext(), "Saved to:" + file.toString(), Toast.LENGTH_LONG).show();
+            OutputStream fos;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                ContentResolver resolver = requireContext().getContentResolver();
+                ContentValues values = new ContentValues();
+                values.put(MediaStore.MediaColumns.DISPLAY_NAME,
+                        String.format("Statement_%s.pdf", member.getMembershipNo()));
+                values.put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf");
+                values.put(MediaStore.MediaColumns.RELATIVE_PATH, folderPath);
+                Uri contentUri = MediaStore.Files.getContentUri("external");
+                Uri pdfURI = resolver.insert(contentUri, values);
 
-        } catch (IOException e) {
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !Environment.isExternalStorageManager()) {
-                Intent permissionIntent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
-                startActivity(permissionIntent);
-                Toast.makeText(getContext(),
-                        "Please allow access to save statements.", Toast.LENGTH_LONG).show();
+                fos = resolver.openOutputStream(pdfURI);
             } else {
-                Toast.makeText(getContext(),
-                        "Could not Save the statement", Toast.LENGTH_LONG).show();
+                File savePath = new File(folderPath);
+                File file = new File(savePath,
+                        String.format("Statement - %s.pdf", member.getMembershipNo()));
+                savePath.mkdirs();
+                fos = new FileOutputStream(file);
             }
-        }
+            document.writeTo(fos);
 
+            assert fos != null;
+            fos.flush();
+            fos.close();
+
+            Toast.makeText(requireContext(),
+                    "Statement Created: Document/Nairobi Gymkhana/Statement_"
+                            + member.getMembershipNo() + ".pdf", Toast.LENGTH_LONG).show();
+        } catch (IOException e) {
+            Toast.makeText(getContext(),
+                    "Could not Save the statement", Toast.LENGTH_LONG).show();
+        }
         document.close();
 
     }

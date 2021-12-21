@@ -200,7 +200,7 @@ public class LoginFragment extends Fragment {
     }
 
     //----------------------------------------------------------------------------------------------
-    
+
     private void openPaymentActivity() {
         Utils.gotoActivity(requireActivity(), PaymentActivity.class);
     }
