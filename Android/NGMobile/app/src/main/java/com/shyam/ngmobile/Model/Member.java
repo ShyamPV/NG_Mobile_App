@@ -1,5 +1,7 @@
 package com.shyam.ngmobile.Model;
 
+import androidx.annotation.NonNull;
+
 import com.shyam.ngmobile.Enums.MemberStatus;
 
 import java.util.Date;
@@ -18,6 +20,7 @@ public class Member {
     private MemberStatus accountStatus;
     private Date memberExpiryDate;
     private Date gymExpiryDate;
+    private String vCertificateURL;
     private boolean firstTimeLogin;
 
     public Member() {
@@ -25,7 +28,8 @@ public class Member {
 
     public Member(String userID, String membershipNo, String fullName, String phoneNumber,
                   String email, String postAddress, String zipCode, String city, String country,
-                  String memberType, MemberStatus accountStatus, Date memberExpiryDate, Date gymExpiryDate, boolean firstTimeLogin) {
+                  String memberType, MemberStatus accountStatus, Date memberExpiryDate, Date gymExpiryDate,
+                  String vCertificateURL, boolean firstTimeLogin) {
         this.userID = userID;
         this.membershipNo = membershipNo;
         this.fullName = fullName;
@@ -39,6 +43,7 @@ public class Member {
         this.accountStatus = accountStatus;
         this.memberExpiryDate = memberExpiryDate;
         this.gymExpiryDate = gymExpiryDate;
+        this.vCertificateURL = vCertificateURL;
         this.firstTimeLogin = firstTimeLogin;
     }
 
@@ -110,6 +115,10 @@ public class Member {
         return gymExpiryDate;
     }
 
+    public String getVCertificateURL() {
+        return vCertificateURL;
+    }
+
     public boolean isFirstTimeLogin() {
         return firstTimeLogin;
     }
@@ -146,9 +155,13 @@ public class Member {
         this.gymExpiryDate = gymExpiryDate;
     }
 
+    @NonNull
+    public void setVCertificateURL(String vCertificateURL) {
+        this.vCertificateURL = vCertificateURL;
+    }
+
     public void setFirstTimeLogin(boolean firstTimeLogin) {
         this.firstTimeLogin = firstTimeLogin;
     }
-
 
 }

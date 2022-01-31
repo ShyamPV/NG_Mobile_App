@@ -1,8 +1,12 @@
 package com.shyam.ngmobile.Fragment;
 
 import android.Manifest;
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -15,6 +19,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,11 +38,14 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.shyam.ngmobile.Enums.MemberStatus;
 import com.shyam.ngmobile.Model.Member;
 import com.shyam.ngmobile.Model.Subscription;
 import com.shyam.ngmobile.R;
 import com.shyam.ngmobile.Services.Utils;
+import com.shyam.ngmobile.ViewPDFActivity;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -62,14 +70,16 @@ public class AccountFragment extends Fragment {
     private static final String UPCOUNTRY = "Upcountry Member";
     private FirebaseAuth mAuth;
     private CollectionReference memberRef;
+    private StorageReference certificateStorage;
 
     private View view;
     private Member member;
-    private Button btnMyWallet, btnUpdateProfile;
+    private Button btnMyWallet, btnUpdateProfile, btnViewVaccineCertificate;
     private EditText postAddressText, cityText, countryText, zipCodeText, phoneNumberText, memberNoText,
-            memberTypeText, emailText, passwordText, confirmPasswordText;
+            memberTypeText, memberExpiryDate, emailText, passwordText, confirmPasswordText;
     private TextView memberName;
     private SweetAlertDialog pDialog;
+    String folderPath = Environment.DIRECTORY_DOCUMENTS + File.separator + "Nairobi Gymkhana";
 
     // Remove this after payment
     private Subscription subscription;
@@ -85,6 +95,11 @@ public class AccountFragment extends Fragment {
                              @Nullable @org.jetbrains.annotations.Nullable ViewGroup container,
                              @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_account, container, false);
+        pDialog = new SweetAlertDialog(view.getContext(), SweetAlertDialog.PROGRESS_TYPE);
+        pDialog.setTitle("Loading");
+        pDialog.getProgressHelper().setBarColor(ContextCompat.getColor(requireContext(), R.color.ng_blue));
+        pDialog.setCancelable(true);
+        pDialog.show();
 
         member = Utils.getCurrentMember();
 
@@ -102,14 +117,10 @@ public class AccountFragment extends Fragment {
         mAuth = FirebaseAuth.getInstance();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         memberRef = db.collection("member");
+        certificateStorage = FirebaseStorage.getInstance().getReference("certificate");
 
-        //Remove this after payment is implemented
+        // TODO Remove this after payment is implemented
         subsRef = db.collection("subscription");
-
-        pDialog = new SweetAlertDialog(view.getContext(), SweetAlertDialog.PROGRESS_TYPE);
-        pDialog.setTitle("Updating...");
-        pDialog.getProgressHelper().setBarColor(ContextCompat.getColor(requireContext(), R.color.ng_blue));
-        pDialog.setCancelable(true);
 
         // TODO this button will create statement util payment is implemented
         btnMyWallet = view.findViewById(R.id.member_wallet);
@@ -148,14 +159,18 @@ public class AccountFragment extends Fragment {
             btnMyWallet.setVisibility(View.GONE);
         }
 
-
         btnUpdateProfile = view.findViewById(R.id.member_update_profile);
         btnUpdateProfile.setOnClickListener(view -> {
             if (validInput()) {
+                pDialog = new SweetAlertDialog(requireContext(), SweetAlertDialog.PROGRESS_TYPE);
+                pDialog.getProgressHelper().setBarColor(ContextCompat.getColor(requireContext(), R.color.ng_blue));
+                pDialog.setCancelable(true);
+                pDialog.setTitle("Updating...");
                 pDialog.show();
                 updateMemberDetails();
             }
         });
+
 
         memberName = view.findViewById(R.id.member_name);
         postAddressText = view.findViewById(R.id.member_address_post_address);
@@ -165,6 +180,7 @@ public class AccountFragment extends Fragment {
         phoneNumberText = view.findViewById(R.id.member_address_phone);
         memberNoText = view.findViewById(R.id.member_membership_no);
         memberTypeText = view.findViewById(R.id.member_membership_type);
+        memberExpiryDate = view.findViewById(R.id.member_membership_expiry_date);
         emailText = view.findViewById(R.id.member_email);
         passwordText = view.findViewById(R.id.member_password);
         confirmPasswordText = view.findViewById(R.id.member_confirm_password);
@@ -176,9 +192,12 @@ public class AccountFragment extends Fragment {
         zipCodeText.setText(member.getZipCode());
         phoneNumberText.setText(member.getPhoneNumber());
         memberNoText.setText(member.getMembershipNo());
+        memberExpiryDate.setText(dateFormatter.format(member.getMemberExpiryDate()));
         memberTypeText.setText(member.getMemberType());
         emailText.setText(member.getEmail());
 
+        btnViewVaccineCertificate = view.findViewById(R.id.upload_view_certificate);
+        validateUploadedCertificate();
     }
 
     private void updateMemberDetails() {
@@ -293,7 +312,114 @@ public class AccountFragment extends Fragment {
         return valid;
     }
 
-    // Remove this after payment is implemented
+    // Vaccine Certificate Methods------------------------------------------------------------------
+    private void validateUploadedCertificate() {
+        certificateStorage.child(member.getMembershipNo())
+                .getDownloadUrl().addOnSuccessListener(uri -> {
+            if (uri != null) {
+                btnViewVaccineCertificate.setText(R.string.viewVaccineCertificate);
+                btnViewVaccineCertificate.setOnClickListener(view -> {
+                    showPDFCertificate(uri);
+                });
+            }
+            if (pDialog != null) pDialog.dismiss();
+        })
+                .addOnFailureListener(exception -> {
+                    btnViewVaccineCertificate.setText(R.string.addVaccineCertificate);
+                    btnViewVaccineCertificate.setOnClickListener(view -> {
+                        showSelectCertificateDialog();
+                    });
+                    if (pDialog != null) pDialog.dismiss();
+                });
+    }
+
+    private void showSelectCertificateDialog() {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("application/pdf");
+
+        startActivityForResult(intent, 0);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
+        if (requestCode == 0 && resultCode == Activity.RESULT_OK) {
+            // The result data contains a URI for the document or directory that
+            // the user selected.
+            Uri uri;
+            if (resultData != null) {
+                uri = resultData.getData();
+                showDisclaimerDialog(uri);
+            }
+        }
+    }
+
+    private void showDisclaimerDialog(Uri filePath) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Disclaimer");
+        builder.setMessage("\nThe vaccine certificate I am uploading to Nairobi Gymkhana Member's app " +
+                "is provided by the Kenyan Ministry of Health and has NOT been altered in any manner.\n");
+        builder.setPositiveButton("I Agree", (dialog, which) -> {
+            uploadCertificateToFireBase(filePath);
+        });
+        builder.setNeutralButton("Cancel", (dialog, which) -> dismissDialog());
+
+        AlertDialog dialog = builder.create();
+        dialog.setCancelable(false);
+        dialog.show();
+
+        Button PB = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
+        Button NB = dialog.getButton(DialogInterface.BUTTON_NEUTRAL);
+
+        PB.setTextSize(18);
+        PB.setTypeface(Typeface.DEFAULT_BOLD);
+        PB.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.ng_blue));
+        PB.setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
+
+        NB.setTextSize(18);
+        NB.setTypeface(Typeface.DEFAULT_BOLD);
+        NB.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.ng_error_red));
+        NB.setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
+
+    }
+
+    private void uploadCertificateToFireBase(Uri filePath) {
+        pDialog = new SweetAlertDialog(requireContext(), SweetAlertDialog.PROGRESS_TYPE);
+        pDialog.getProgressHelper().setBarColor(ContextCompat.getColor(requireContext(), R.color.ng_blue));
+        pDialog.setCancelable(true);
+        pDialog.setTitle("Uploading Certificate");
+        pDialog.show();
+
+        certificateStorage.child(member.getMembershipNo())
+                .putFile(filePath).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                certificateStorage.child(member.getMembershipNo())
+                        .getDownloadUrl()
+                        .addOnSuccessListener(uri1 -> {
+                            btnViewVaccineCertificate.setText(R.string.viewVaccineCertificate);
+                            btnViewVaccineCertificate.setOnClickListener(view -> {
+                                showPDFCertificate(uri1);
+                            });
+                            if (pDialog != null) pDialog.dismiss();
+                            Utils.displayMessage(requireActivity(),
+                                    "Success", "Certificate Uploaded Successfully.");
+                        });
+            } else {
+                if (pDialog != null) pDialog.dismiss();
+            }
+
+        });
+    }
+
+    private void showPDFCertificate(Uri path) {
+        Intent intent = new Intent(requireContext(), ViewPDFActivity.class);
+        intent.putExtra("URL", path.toString());
+        startActivity(intent);
+    }
+
+    // END Vaccine Certificate Methods--------------------------------------------------------------
+
+    // TODO Remove this after payment is implemented
 
     private String getSubMemberType() {
         switch (member.getMemberType()) {
@@ -367,7 +493,7 @@ public class AccountFragment extends Fragment {
 
 
         document.finishPage(page);
-        String folderPath = Environment.DIRECTORY_DOCUMENTS + File.separator + "Nairobi Gymkhana";
+
 
         try {
             OutputStream fos;
@@ -383,10 +509,11 @@ public class AccountFragment extends Fragment {
 
                 fos = resolver.openOutputStream(pdfURI);
             } else {
+                folderPath = Environment.getExternalStorageDirectory() + File.separator + folderPath;
                 File savePath = new File(folderPath);
+                if (!savePath.exists()) savePath.mkdirs();
                 File file = new File(savePath,
                         String.format("Statement - %s.pdf", member.getMembershipNo()));
-                savePath.mkdirs();
                 fos = new FileOutputStream(file);
             }
             document.writeTo(fos);
@@ -399,7 +526,8 @@ public class AccountFragment extends Fragment {
                     "Statement Created: Document/Nairobi Gymkhana/Statement_"
                             + member.getMembershipNo() + ".pdf", Toast.LENGTH_LONG).show();
         } catch (IOException e) {
-            Toast.makeText(getContext(),
+            Log.e("generateMemberStatement: ", e.toString());
+            Toast.makeText(requireContext(),
                     "Could not Save the statement", Toast.LENGTH_LONG).show();
         }
         document.close();
@@ -566,7 +694,7 @@ public class AccountFragment extends Fragment {
             String text5 = "DURATION OF THE COURSE.";
 
             String text6 = "NB: JUNIOR MEMBER ARE REQUIRED TO PRESENT THEIR SCHOOL ID WITH EXPIRY DATE,";
-            String text7 = "CURRENT YEAR FEE NOTE/LETTER FROM THIER INSTITUTE OF EDUCATION INDICATING THAT";
+            String text7 = "CURRENT YEAR FEE NOTE/LETTER FROM THEIR INSTITUTE OF EDUCATION INDICATING THAT";
             String text8 = "AS FULL TIME STUDENTS.";
 
             canvas.drawText(text1, xPoint, yPoint, paint);

@@ -42,4 +42,9 @@
     <string name="payment_option_card">CARD</string>
     <string name="card_recharge_text">Card Recharge</string>
     <string name="default_notification_channel_id">Club Updates</string>
+    <string name="addVaccineCertificate">Add Vaccine Certificate</string>
+    <string name="viewVaccineCertificate">View Vaccine Certificate</string>
+    <string name="covid_vaccination_title">Covid Vaccination</string>
+    <string name="vaccine_certificate">Vaccine Certificate</string>
+    <string name="delete_certificate">Delete Certificate</string>
 </resources>
