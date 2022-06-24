@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.text.util.Linkify;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -108,6 +109,7 @@ public class PostDetailActivity extends AppCompatActivity {
         timeText.setText(postTime);
 
         descriptionText.setText(post.getDescription());
+        Linkify.addLinks(descriptionText,Linkify.ALL);
 
         pDialog.dismiss();
     }
@@ -159,7 +161,7 @@ public class PostDetailActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-        finish();
+        Intent Home = new Intent(this,MainActivity.class);
+        startActivity(Home);
     }
 }

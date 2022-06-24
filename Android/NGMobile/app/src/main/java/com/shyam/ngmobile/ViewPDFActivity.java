@@ -54,8 +54,11 @@ public class ViewPDFActivity extends AppCompatActivity {
 
         certificateURI = getIntent().getStringExtra("URL");
         pdfView = findViewById(R.id.pdf_view);
-        
-        if (certificateURI != null) onBackPressed();
+
+        if (certificateURI == null) {
+            Toast.makeText(this, "Certificate Not found. Please contact the club", Toast.LENGTH_SHORT).show();
+            finish();
+        }
 
         new RetrivePDFfromUrl().execute(certificateURI);
 
@@ -139,7 +142,7 @@ public class ViewPDFActivity extends AppCompatActivity {
         certificateRef.child(member.getMembershipNo()).delete().addOnCompleteListener(task -> {
             pDialog.dismiss();
             if (task.isSuccessful()) {
-                Toast.makeText(this, "Certificated Deleted!", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Certificate Deleted!", Toast.LENGTH_LONG).show();
                 Utils.gotoActivity(this, MainActivity.class);
             } else {
                 Utils.displayMessage(this, "Error", "Certificate was not deleted.");

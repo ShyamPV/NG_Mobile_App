@@ -8,8 +8,12 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="app/src/main/res/drawable-v24/account_selector.xml" value="0.199" />
         <entry key="app/src/main/res/layout-port/dialog_pdf_viewer.xml" value="0.15070921985815602" />
+        <entry key="app/src/main/res/layout/activity_login.xml" value="0.1" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/activity_post_detail.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/activity_splash.xml" value="0.1" />
         <entry key="app/src/main/res/layout/activity_view_pdf.xml" value="0.13043478260869565" />
         <entry key="app/src/main/res/layout/dialog_payment_option.xml" value="0.15070921985815602" />
         <entry key="app/src/main/res/layout/fragment_account.xml" value="0.15070921985815602" />

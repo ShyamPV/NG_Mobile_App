@@ -50,7 +50,6 @@ public class HomeFragment extends Fragment {
     private boolean isLastItemReached;
     private ArrayList<Post> postList;
     private SweetAlertDialog pDialog;
-    private Date today;
 
 
     @Nullable

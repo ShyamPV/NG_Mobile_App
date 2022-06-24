@@ -122,7 +122,7 @@ public class AccountFragment extends Fragment {
         // TODO Remove this after payment is implemented
         subsRef = db.collection("subscription");
 
-        // TODO this button will create statement util payment is implemented
+        // TODO this button will create statement until payment is implemented
         btnMyWallet = view.findViewById(R.id.member_wallet);
 
         if (member.getMemberType().equals(ORDINARY) ||
@@ -296,11 +296,6 @@ public class AccountFragment extends Fragment {
             zipCodeText.setError("Please enter post code");
         }
 
-        if (member.isFirstTimeLogin() && password.isEmpty()) {
-            valid = false;
-            passwordText.setError("Please update your password");
-        }
-
         if (!password.isEmpty() && confirmPassword.isEmpty()) {
             valid = false;
             confirmPasswordText.setError("Please confirm your password");
@@ -322,15 +317,14 @@ public class AccountFragment extends Fragment {
                     showPDFCertificate(uri);
                 });
             }
-            if (pDialog != null) pDialog.dismiss();
-        })
-                .addOnFailureListener(exception -> {
-                    btnViewVaccineCertificate.setText(R.string.addVaccineCertificate);
-                    btnViewVaccineCertificate.setOnClickListener(view -> {
-                        showSelectCertificateDialog();
-                    });
-                    if (pDialog != null) pDialog.dismiss();
-                });
+            dismissDialog();
+        }).addOnFailureListener(exception -> {
+            btnViewVaccineCertificate.setText(R.string.addVaccineCertificate);
+            btnViewVaccineCertificate.setOnClickListener(view -> {
+                showSelectCertificateDialog();
+            });
+            dismissDialog();
+        });
     }
 
     private void showSelectCertificateDialog() {
@@ -400,14 +394,13 @@ public class AccountFragment extends Fragment {
                             btnViewVaccineCertificate.setOnClickListener(view -> {
                                 showPDFCertificate(uri1);
                             });
-                            if (pDialog != null) pDialog.dismiss();
+                            dismissDialog();
                             Utils.displayMessage(requireActivity(),
                                     "Success", "Certificate Uploaded Successfully.");
                         });
             } else {
-                if (pDialog != null) pDialog.dismiss();
+                dismissDialog();
             }
-
         });
     }
 
@@ -693,6 +686,7 @@ public class AccountFragment extends Fragment {
             String text4 = "DOCUMENTARY EVIDENCE SHOWING CLEARLY THE STUDIES BEING PURSUED AND THE ";
             String text5 = "DURATION OF THE COURSE.";
 
+            
             String text6 = "NB: JUNIOR MEMBER ARE REQUIRED TO PRESENT THEIR SCHOOL ID WITH EXPIRY DATE,";
             String text7 = "CURRENT YEAR FEE NOTE/LETTER FROM THEIR INSTITUTE OF EDUCATION INDICATING THAT";
             String text8 = "AS FULL TIME STUDENTS.";

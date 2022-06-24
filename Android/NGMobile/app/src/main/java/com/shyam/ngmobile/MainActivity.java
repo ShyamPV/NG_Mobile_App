@@ -58,7 +58,8 @@ public class MainActivity extends AppCompatActivity {
         Fragment selectedFragment = null;
 
         if (member.isFirstTimeLogin() && item.getItemId() != R.id.nav_account) {
-            Toast.makeText(this, "Please Complete Registration.", Toast.LENGTH_SHORT).show();
+            //show Message box
+            Utils.displayMessage(this,"Error!","Complete Registration.\nEnsure all Fields are provides, Update the password and click on Update Button");
             return false;
         } else {
             switch (item.getItemId()) {
@@ -80,6 +81,8 @@ public class MainActivity extends AppCompatActivity {
         return true;
     };
 
+
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.tool_bar_menu, menu);
@@ -93,7 +96,6 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
-
     }
 
     @Override
@@ -106,5 +108,9 @@ public class MainActivity extends AppCompatActivity {
             exitApp.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(exitApp);
         }
+    }
+
+    private void showCompleteRegistrationMessageBox() {
+
     }
 }

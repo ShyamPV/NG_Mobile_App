@@ -16,8 +16,7 @@ public class Post {
     private String title;
     private String description;
     private Date startTime;
-    private Date endTime;
-    private String imageURL;
+    private Date endTime;private String imageURL;
     private String documentURL;
 
     public Post() {
