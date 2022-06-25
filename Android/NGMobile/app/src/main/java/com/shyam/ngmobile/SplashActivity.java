@@ -25,9 +25,6 @@ public class SplashActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private CollectionReference memberRef;
-    //TODO Add new notification topics here
-
-
     // TODO remove this once payment is implemented
     private static final String ORDINARY = "Ordinary Member";
     private static final String LADY = "Lady Member";
