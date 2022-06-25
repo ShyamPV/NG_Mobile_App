@@ -14,11 +14,14 @@ import androidx.core.app.NotificationCompat;
 
 import com.google.firebase.messaging.RemoteMessage;
 import com.shyam.ngmobile.MainActivity;
+import com.shyam.ngmobile.PostDetailActivity;
 import com.shyam.ngmobile.R;
 
 import org.jetbrains.annotations.NotNull;
 
 public class FirebaseMessagingService extends com.google.firebase.messaging.FirebaseMessagingService {
+    private static final String POST_ID = "postID";
+
     @Override
     public void onDeletedMessages() {
 
@@ -27,13 +30,13 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
     @Override
     public void onMessageReceived(@NonNull @NotNull RemoteMessage remoteMessage) {
         String title = remoteMessage.getNotification().getTitle();
-        String message = remoteMessage.getNotification().getBody();
+        String postID = remoteMessage.getNotification().getBody();
 
-        sendNotification(title, message);
+        sendNotification(title, postID);
     }
 
-    private void sendNotification(String title, String messageBody) {
-        Intent intent = new Intent(this, MainActivity.class);
+    private void sendNotification(String title, String postID) {
+        Intent intent = new Intent(this, PostDetailActivity.class).putExtra(POST_ID, postID);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
                 PendingIntent.FLAG_ONE_SHOT);
@@ -44,7 +47,6 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
                 new NotificationCompat.Builder(this, channelId)
                         .setSmallIcon(R.mipmap.ic_launcher)
                         .setContentTitle(title)
-                        .setContentText(messageBody)
                         .setAutoCancel(true)
                         .setSound(defaultSoundUri)
                         .setContentIntent(pendingIntent);

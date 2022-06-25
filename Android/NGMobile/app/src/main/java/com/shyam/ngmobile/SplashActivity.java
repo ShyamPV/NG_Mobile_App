@@ -26,7 +26,6 @@ public class SplashActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private CollectionReference memberRef;
     //TODO Add new notification topics here
-    private static final String CLUB_UPDATES = "club_updates";
 
 
     // TODO remove this once payment is implemented
@@ -53,7 +52,7 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void setupNotification() {
-        FirebaseMessaging.getInstance().subscribeToTopic(CLUB_UPDATES);
+        FirebaseMessaging.getInstance().subscribeToTopic(String.valueOf(R.string.CLUB_UPDATES));
     }
 
     private void getFirestoreUser(String userID) {

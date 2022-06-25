@@ -16,6 +16,7 @@ import android.widget.Toast;
 import androidx.core.content.ContextCompat;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.shyam.ngmobile.LoginActivity;
 import com.shyam.ngmobile.Model.Member;
 import com.shyam.ngmobile.Model.Subscription;
@@ -77,6 +78,7 @@ public class Utils {
     }
 
     public static void logoutUser(Activity activity) {
+        FirebaseMessaging.getInstance().unsubscribeFromTopic(String.valueOf(R.string.CLUB_UPDATES));
         mAuth.signOut();
         gotoActivity(activity, LoginActivity.class);
     }

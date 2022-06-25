@@ -161,7 +161,7 @@ public class PostDetailActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        Intent Home = new Intent(this,MainActivity.class);
-        startActivity(Home);
+        super.onBackPressed();
+        this.finish();
     }
 }
