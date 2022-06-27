@@ -16,12 +16,14 @@ import androidx.fragment.app.Fragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.shyam.ngmobile.Enums.MemberStatus;
 import com.shyam.ngmobile.MainActivity;
 import com.shyam.ngmobile.Model.Member;
 import com.shyam.ngmobile.Model.Subscription;
 import com.shyam.ngmobile.PaymentActivity;
 import com.shyam.ngmobile.R;
+import com.shyam.ngmobile.Services.FirebaseMessagingService;
 import com.shyam.ngmobile.Services.Utils;
 
 import org.jetbrains.annotations.NotNull;
@@ -206,6 +208,7 @@ public class LoginFragment extends Fragment {
     }
 
     private void openHomeActivity() {
+        FirebaseMessaging.getInstance().subscribeToTopic("post_123");
         Utils.gotoActivity(requireActivity(), MainActivity.class);
     }
 }

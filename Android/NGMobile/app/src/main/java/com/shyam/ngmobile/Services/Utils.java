@@ -30,7 +30,6 @@ import java.util.ArrayList;
 public class Utils {
     private static FirebaseAuth mAuth = FirebaseAuth.getInstance();
     public static Member currentMember;
-
     public static void setCurrentMember(Member member) {
         currentMember = member;
     }
@@ -78,7 +77,7 @@ public class Utils {
     }
 
     public static void logoutUser(Activity activity) {
-        FirebaseMessaging.getInstance().unsubscribeFromTopic(String.valueOf(R.string.CLUB_UPDATES));
+        FirebaseMessaging.getInstance().unsubscribeFromTopic("post_123");
         mAuth.signOut();
         gotoActivity(activity, LoginActivity.class);
     }

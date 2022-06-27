@@ -5,12 +5,12 @@ plugins {
 
 android {
     signingConfigs {
-        debug {
-            storeFile file('/Users/shyam/Desktop/NG_Mobile_App/NG_Mobile_App/Android/NG_Store_Path')
-            storePassword '#Shush123'
-            keyAlias 'NG_Alias'
-            keyPassword '#Shush123'
-        }
+//        debug {
+//            storeFile file('/Users/shyam/Desktop/NG_Mobile_App/NG_Mobile_App/Android/NG_Store_Path')
+//            storePassword '#Shush123'
+//            keyAlias 'NG_Alias'
+//            keyPassword '#Shush123'
+//        }
     }
     compileSdkVersion 31
 
