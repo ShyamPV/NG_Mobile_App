@@ -49,7 +49,7 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void setupNotification() {
-        FirebaseMessaging.getInstance().subscribeToTopic(String.valueOf(R.string.CLUB_UPDATES));
+        FirebaseMessaging.getInstance().subscribeToTopic("club_updates");
     }
 
     private void getFirestoreUser(String userID) {

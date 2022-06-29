@@ -78,7 +78,7 @@ public class Utils {
     }
 
     public static void logoutUser(Activity activity) {
-        FirebaseMessaging.getInstance().unsubscribeFromTopic(String.valueOf(R.string.CLUB_UPDATES));
+        FirebaseMessaging.getInstance().unsubscribeFromTopic("club_updates");
         mAuth.signOut();
         gotoActivity(activity, LoginActivity.class);
     }
