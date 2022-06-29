@@ -38,8 +38,8 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
     private void sendNotification(String title, String postID) {
         Intent intent = new Intent(this, PostDetailActivity.class).putExtra(POST_ID, postID);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
-                PendingIntent.FLAG_ONE_SHOT);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 1 /* Request code */, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
 
         String channelId = getString(R.string.default_notification_channel_id);
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
@@ -47,6 +47,7 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
                 new NotificationCompat.Builder(this, channelId)
                         .setSmallIcon(R.mipmap.ic_launcher)
                         .setContentTitle(title)
+                        .setContentText("")
                         .setAutoCancel(true)
                         .setSound(defaultSoundUri)
                         .setContentIntent(pendingIntent);
